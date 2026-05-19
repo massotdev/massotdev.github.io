@@ -211,6 +211,15 @@
       statusMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
+    function buildPayload() {
+      const data = new FormData(form);
+      const payload = {};
+      data.forEach((value, key) => {
+        if (value) payload[key] = value;
+      });
+      return payload;
+    }
+
     reason.addEventListener('change', updateConditionalFields);
     deviceChoices.forEach((input) => input.addEventListener('change', updateDeviceChoices));
 
@@ -231,17 +240,21 @@
       try {
         const response = await fetch(form.action, {
           method: 'POST',
-          body: new FormData(form),
-          headers: { Accept: 'application/json' }
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(buildPayload())
         });
 
-        if (!response.ok) throw new Error('Form submission failed');
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.success === false) throw new Error(result.message || 'Form submission failed');
 
         form.reset();
         updateConditionalFields();
         showStatus('success', 'Votre message a bien été envoyé. Une réponse vous sera apportée en moins de 48 h.');
       } catch (error) {
-        showStatus('error', 'L’envoi n’a pas pu aboutir pour le moment. Vous pouvez réessayer dans quelques instants ou écrire directement à support@massotdev.com.');
+        showStatus('error', 'L’envoi automatique n’a pas pu aboutir. Vérifiez que l’adresse support@massotdev.com a bien confirmé FormSubmit, puis réessayez. Vous pouvez aussi écrire directement à support@massotdev.com.');
       } finally {
         submitButton.disabled = false;
         submitButton.textContent = 'Envoyer';
