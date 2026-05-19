@@ -13,16 +13,23 @@
     .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     .form-field { display: grid; gap: 7px; }
     .form-field.full { grid-column: 1 / -1; }
-    .form-field label { color: var(--text); font-size: 14px; font-weight: 800; }
+    .form-field label, .choice-label { color: var(--text); font-size: 14px; font-weight: 800; }
+    .required { color: var(--gold); }
     .form-field input, .form-field select, .form-field textarea { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.06); color: var(--text); font: inherit; padding: 13px 14px; outline: none; }
     .form-field select option { color: #111; }
     .form-field textarea { min-height: 150px; resize: vertical; }
     .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,180,107,.18); }
+    .choice-group { display: grid; gap: 9px; }
+    .device-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .device-choice { min-height: 52px; display: flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.06); color: var(--text); font-weight: 800; cursor: pointer; }
+    .device-choice input { width: 16px; height: 16px; accent-color: var(--gold); }
+    .conditional-fields { display: none; grid-column: 1 / -1; gap: 16px; }
+    .conditional-fields.is-visible { display: grid; }
     .form-note { color: var(--muted); font-size: 14px; }
-    .generated-mail { display: none; margin-top: 18px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.045); padding: 16px; }
-    .generated-mail.is-visible { display: block; }
-    .generated-mail textarea { width: 100%; min-height: 180px; margin-top: 10px; border: 1px solid var(--line); border-radius: 8px; background: rgba(0,0,0,.22); color: var(--text); font: inherit; padding: 12px; }
-    @media (max-width: 860px) { .support-layout, .form-grid { grid-template-columns: 1fr; } .form-field.full { grid-column: auto; } }
+    .success-message { display: none; margin-bottom: 22px; border: 1px solid rgba(212,180,107,.42); border-radius: 8px; background: rgba(212,180,107,.12); padding: 16px; color: var(--text); }
+    .success-message.is-visible { display: block; }
+    .hidden-field { position: absolute; left: -9999px; opacity: 0; }
+    @media (max-width: 860px) { .support-layout, .form-grid, .device-choices { grid-template-columns: 1fr; } .form-field.full, .conditional-fields { grid-column: auto; } }
   </style>
 </head>
 <body>
@@ -33,7 +40,7 @@
         <div class="nav-links">
           <a href="/apps.html">Apps</a>
           <a aria-current="page" href="/support.html">Assistance</a>
-          <a href="/privacy.html">Confidentialite</a>
+          <a href="/privacy.html">Confidentialité</a>
           <a href="/legal.html">Legal</a>
         </div>
       </nav>
@@ -42,126 +49,163 @@
     <main class="shell legal">
       <div class="page-title">
         <p class="kicker">Assistance</p>
-        <h1>Besoin d'aide avec une application Massot Development ?</h1>
-        <p>Remplissez le formulaire ci-dessous : il prépare automatiquement un email complet avec les informations utiles pour comprendre le problème.</p>
+        <h1>Besoin d’aide avec Massot Development ?</h1>
+        <p>Remplissez le formulaire ci-dessous. Votre demande sera envoyée automatiquement à l’adresse support@massotdev.com avec les informations nécessaires.</p>
+      </div>
+
+      <div class="success-message" id="success-message">
+        Merci, votre message a bien été préparé pour l’envoi. Si c’est le premier message reçu via ce formulaire, une confirmation peut être demandée sur l’adresse support@massotdev.com.
       </div>
 
       <div class="support-layout">
         <section class="support-card" aria-labelledby="contact-form-title">
           <h2 id="contact-form-title">Formulaire de contact</h2>
-          <form class="support-form" id="support-form">
+          <form class="support-form" id="support-form" action="https://formsubmit.co/support@massotdev.com" method="POST">
+            <input type="hidden" name="_subject" id="email-subject" value="Nouvelle demande Massot Development">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_next" value="https://massotdev.com/support.html?sent=1">
+            <input type="text" name="_honey" class="hidden-field" tabindex="-1" autocomplete="off">
+
             <div class="form-grid">
               <div class="form-field">
-                <label for="first-name">Prenom</label>
-                <input id="first-name" name="firstName" autocomplete="given-name" required>
+                <label for="first-name">Prénom <span class="required">*</span></label>
+                <input id="first-name" name="Prénom" autocomplete="given-name" required>
               </div>
               <div class="form-field">
-                <label for="last-name">Nom</label>
-                <input id="last-name" name="lastName" autocomplete="family-name" required>
+                <label for="last-name">Nom <span class="required">*</span></label>
+                <input id="last-name" name="Nom" autocomplete="family-name" required>
               </div>
               <div class="form-field full">
-                <label for="email">Adresse email</label>
+                <label for="email">Adresse email <span class="required">*</span></label>
                 <input id="email" name="email" type="email" autocomplete="email" required>
               </div>
-              <div class="form-field">
-                <label for="app-name">Application concernee</label>
-                <select id="app-name" name="appName" required>
-                  <option value="">Choisir une application</option>
-                  <option>Padel Score</option>
-                  <option>Score</option>
-                  <option>Serenity</option>
-                  <option>Hyrox Partner</option>
-                  <option>Autre application Massot Development</option>
+              <div class="form-field full">
+                <label for="contact-reason">Pourquoi souhaitez-vous nous contacter ? <span class="required">*</span></label>
+                <select id="contact-reason" name="Motif de contact" required>
+                  <option value="">Choisir un motif</option>
+                  <option value="Problème ou question sur une application">Problème ou question sur une application</option>
+                  <option value="Demande d’information">Demande d’information</option>
+                  <option value="Demande de devis">Demande de devis</option>
+                  <option value="Autre">Autre</option>
                 </select>
               </div>
-              <div class="form-field">
-                <label for="device-brand">Marque de l'appareil</label>
-                <input id="device-brand" name="deviceBrand" placeholder="Garmin, Apple, Samsung..." required>
+
+              <div class="conditional-fields" id="app-fields">
+                <div class="form-field full">
+                  <label for="app-name">Application concernée <span class="required">*</span></label>
+                  <select id="app-name" name="Application concernée" data-required-when-visible>
+                    <option value="">Choisir une application</option>
+                    <option>Padel Score</option>
+                    <option>Score</option>
+                    <option>Serenity</option>
+                    <option>Hyrox Partner</option>
+                    <option>Autre application Massot Development</option>
+                  </select>
+                </div>
+                <div class="choice-group full">
+                  <span class="choice-label">Plateforme de l’appareil <span class="required">*</span></span>
+                  <div class="device-choices">
+                    <label class="device-choice"><input type="radio" name="Plateforme de l’appareil" value="Apple" data-required-when-visible> Apple</label>
+                    <label class="device-choice"><input type="radio" name="Plateforme de l’appareil" value="Garmin" data-required-when-visible> Garmin</label>
+                  </div>
+                </div>
+                <div class="form-field full">
+                  <label for="device-model">Modèle de l’appareil <span class="required">*</span></label>
+                  <input id="device-model" name="Modèle de l’appareil" placeholder="Apple Watch Series 9, Garmin Forerunner 965..." data-required-when-visible>
+                </div>
               </div>
-              <div class="form-field full">
-                <label for="device-model">Modele de l'appareil</label>
-                <input id="device-model" name="deviceModel" placeholder="Apple Watch Series 9, Garmin Forerunner 965..." required>
+
+              <div class="conditional-fields" id="quote-fields">
+                <div class="form-field full">
+                  <label for="project-platform">Plateforme envisagée <span class="required">*</span></label>
+                  <select id="project-platform" name="Plateforme envisagée" data-required-when-visible>
+                    <option value="">Choisir une plateforme</option>
+                    <option>Garmin</option>
+                    <option>Apple Watch</option>
+                    <option>iPhone</option>
+                    <option>Android</option>
+                    <option>Plusieurs plateformes</option>
+                    <option>Je ne sais pas encore</option>
+                  </select>
+                </div>
               </div>
+
               <div class="form-field full">
-                <label for="issue">Explication du probleme</label>
-                <textarea id="issue" name="issue" placeholder="Decrivez ce qui se passe, quand le probleme apparait, et les etapes deja essayees." required></textarea>
+                <label for="message">Votre message <span class="required">*</span></label>
+                <textarea id="message" name="Message" placeholder="Décrivez votre demande, votre question ou le problème rencontré." required></textarea>
               </div>
             </div>
-            <p class="form-note">Aucune information n'est enregistree sur le site. Le bouton ouvre simplement votre application mail avec un message deja redige.</p>
-            <button class="button primary" type="submit">Rediger l'email d'assistance</button>
+            <p class="form-note">Les champs marqués d’un astérisque sont obligatoires. Le formulaire utilise FormSubmit pour transmettre votre message à support@massotdev.com.</p>
+            <button class="button primary" type="submit">Envoyer</button>
           </form>
-
-          <div class="generated-mail" id="generated-mail" aria-live="polite">
-            <strong>Email prepare</strong>
-            <p class="form-note">Si votre application mail ne s'ouvre pas automatiquement, copiez le texte ci-dessous et envoyez-le a support@massotdev.com.</p>
-            <textarea id="generated-body" readonly></textarea>
-          </div>
         </section>
 
         <aside class="support-card">
           <h2>Contact direct</h2>
           <p>Email : <a href="mailto:support@massotdev.com">support@massotdev.com</a></p>
-          <p>Si cette adresse n'est pas encore active, utilisez <a href="mailto:massotdynamics@gmail.com">massotdynamics@gmail.com</a> pendant la transition du domaine.</p>
+          <p>Si cette adresse n’est pas encore active, utilisez <a href="mailto:massotdynamics@gmail.com">massotdynamics@gmail.com</a> pendant la transition du domaine.</p>
 
-          <h2>Avant d'ecrire</h2>
+          <h2>Avant d’écrire</h2>
           <ul class="list">
-            <li>Verifiez que la montre et le telephone utilisent la derniere version disponible.</li>
-            <li>Installez la derniere version de l'application depuis l'App Store ou Garmin Connect IQ.</li>
-            <li>Redemarrez l'application si le score, la session ou le minuteur ne se met pas a jour.</li>
-            <li>Ajoutez le modele exact de l'appareil et le nom de l'application concernee.</li>
+            <li>Vérifiez que la montre et le téléphone utilisent la dernière version disponible.</li>
+            <li>Installez la dernière version de l’application depuis l’App Store ou Garmin Connect IQ.</li>
+            <li>Redémarrez l’application si le score, la session ou le minuteur ne se met pas à jour.</li>
+            <li>Ajoutez le modèle exact de l’appareil et le nom de l’application concernée.</li>
           </ul>
 
           <h2>Guides des apps</h2>
-          <p>Chaque application peut avoir son guide d'utilisation : <a href="/apps.html">voir les guides</a>.</p>
+          <p>Chaque application peut avoir son guide d’utilisation : <a href="/apps.html">voir les guides</a>.</p>
         </aside>
       </div>
     </main>
 
-    <footer class="footer"><div class="footer-inner"><span>© 2026 Massot Development</span><span><a href="/privacy.html">Confidentialite</a> · <a href="/apps.html">Apps</a></span></div></footer>
+    <footer class="footer"><div class="footer-inner"><span>© 2026 Massot Development</span><span><a href="/privacy.html">Confidentialité</a> · <a href="/apps.html">Apps</a></span></div></footer>
   </div>
 
   <script>
     const form = document.getElementById('support-form');
-    const generatedMail = document.getElementById('generated-mail');
-    const generatedBody = document.getElementById('generated-body');
+    const reason = document.getElementById('contact-reason');
+    const appFields = document.getElementById('app-fields');
+    const quoteFields = document.getElementById('quote-fields');
+    const subjectField = document.getElementById('email-subject');
+    const successMessage = document.getElementById('success-message');
 
-    form.addEventListener('submit', (event) => {
-      event.preventDefault();
-      const data = new FormData(form);
-      const firstName = data.get('firstName').trim();
-      const lastName = data.get('lastName').trim();
-      const email = data.get('email').trim();
-      const appName = data.get('appName').trim();
-      const deviceBrand = data.get('deviceBrand').trim();
-      const deviceModel = data.get('deviceModel').trim();
-      const issue = data.get('issue').trim();
+    function setRequired(container, required) {
+      container.querySelectorAll('[data-required-when-visible]').forEach((field) => {
+        field.required = required;
+        field.disabled = !required;
+        if (!required) {
+          if (field.type === 'radio') field.checked = false;
+          else field.value = '';
+        }
+      });
+    }
 
-      const subject = `Demande d'assistance - ${appName} - ${deviceBrand} ${deviceModel}`;
-      const body = [
-        'Bonjour Massot Development,',
-        '',
-        "Je vous contacte au sujet d'un probleme rencontre avec une application.",
-        '',
-        `Prenom : ${firstName}`,
-        `Nom : ${lastName}`,
-        `Adresse email : ${email}`,
-        `Application concernee : ${appName}`,
-        `Marque de l'appareil : ${deviceBrand}`,
-        `Modele de l'appareil : ${deviceModel}`,
-        '',
-        'Explication du probleme :',
-        issue,
-        '',
-        'Merci par avance pour votre aide.',
-        `${firstName} ${lastName}`
-      ].join('\n');
+    function updateConditionalFields() {
+      const value = reason.value;
+      const isAppRequest = value === 'Problème ou question sur une application';
+      const isQuoteRequest = value === 'Demande de devis';
 
-      generatedBody.value = body;
-      generatedMail.classList.add('is-visible');
+      appFields.classList.toggle('is-visible', isAppRequest);
+      quoteFields.classList.toggle('is-visible', isQuoteRequest);
+      setRequired(appFields, isAppRequest);
+      setRequired(quoteFields, isQuoteRequest);
+    }
 
-      const mailto = `mailto:support@massotdev.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.location.href = mailto;
+    reason.addEventListener('change', updateConditionalFields);
+
+    form.addEventListener('submit', () => {
+      const firstName = form.elements['Prénom'].value.trim();
+      const lastName = form.elements['Nom'].value.trim();
+      const reasonValue = reason.value || 'Demande Massot Development';
+      subjectField.value = `${reasonValue} - ${firstName} ${lastName}`;
     });
+
+    if (new URLSearchParams(window.location.search).get('sent') === '1') {
+      successMessage.classList.add('is-visible');
+    }
+
+    updateConditionalFields();
   </script>
 </body>
 </html>
