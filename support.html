@@ -64,10 +64,7 @@
       <div class="support-layout">
         <section class="support-card" aria-labelledby="contact-form-title">
           <h2 id="contact-form-title">Formulaire de contact</h2>
-          <form class="support-form" id="support-form" action="https://formsubmit.co/ajax/support@massotdev.com" method="POST">
-            <input type="hidden" name="_subject" id="email-subject" value="Nouvelle demande Massot Development">
-            <input type="hidden" name="_template" value="table">
-            <input type="hidden" name="_captcha" value="false">
+          <form class="support-form" id="support-form" action="/api/contact" method="POST">
             <input type="text" name="_honey" class="hidden-field" tabindex="-1" autocomplete="off">
 
             <div class="form-grid">
@@ -171,7 +168,6 @@
     const reason = document.getElementById('contact-reason');
     const appFields = document.getElementById('app-fields');
     const quoteFields = document.getElementById('quote-fields');
-    const subjectField = document.getElementById('email-subject');
     const statusMessage = document.getElementById('form-status');
     const submitButton = document.getElementById('submit-button');
     const deviceChoices = document.querySelectorAll('.device-choice input');
@@ -227,11 +223,6 @@
       event.preventDefault();
       if (!form.reportValidity()) return;
 
-      const firstName = form.elements['Prénom'].value.trim();
-      const lastName = form.elements['Nom'].value.trim();
-      const reasonValue = reason.value || 'Demande Massot Development';
-      subjectField.value = `${reasonValue} - ${firstName} ${lastName}`;
-
       submitButton.disabled = true;
       submitButton.textContent = 'Envoi en cours...';
       statusMessage.className = 'status-message';
@@ -254,7 +245,7 @@
         updateConditionalFields();
         showStatus('success', 'Votre message a bien été envoyé. Une réponse vous sera apportée en moins de 48 h.');
       } catch (error) {
-        showStatus('error', 'L’envoi automatique n’a pas pu aboutir. Vérifiez que l’adresse support@massotdev.com a bien confirmé FormSubmit, puis réessayez. Vous pouvez aussi écrire directement à support@massotdev.com.');
+        showStatus('error', 'L’envoi automatique n’est pas encore disponible sur cet hébergement. Le formulaire est prêt, mais la fonction /api/contact doit être déployée sur Cloudflare Pages avec la clé d’envoi mail. Vous pouvez aussi écrire directement à support@massotdev.com.');
       } finally {
         submitButton.disabled = false;
         submitButton.textContent = 'Envoyer';
