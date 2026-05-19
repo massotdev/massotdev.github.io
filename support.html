@@ -1,21 +1,39 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Support - Massot Development</title>
-  <meta name="description" content="Support for Massot Development apps.">
+  <title>Assistance - Massot Development</title>
+  <meta name="description" content="Assistance pour les applications Massot Development.">
   <link rel="stylesheet" href="/styles.css">
+  <style>
+    .support-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr); gap: 34px; align-items: start; padding-bottom: 88px; }
+    .support-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); padding: 26px; }
+    .support-form { display: grid; gap: 18px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .form-field { display: grid; gap: 7px; }
+    .form-field.full { grid-column: 1 / -1; }
+    .form-field label { color: var(--text); font-size: 14px; font-weight: 800; }
+    .form-field input, .form-field select, .form-field textarea { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.06); color: var(--text); font: inherit; padding: 13px 14px; outline: none; }
+    .form-field select option { color: #111; }
+    .form-field textarea { min-height: 150px; resize: vertical; }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,180,107,.18); }
+    .form-note { color: var(--muted); font-size: 14px; }
+    .generated-mail { display: none; margin-top: 18px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.045); padding: 16px; }
+    .generated-mail.is-visible { display: block; }
+    .generated-mail textarea { width: 100%; min-height: 180px; margin-top: 10px; border: 1px solid var(--line); border-radius: 8px; background: rgba(0,0,0,.22); color: var(--text); font: inherit; padding: 12px; }
+    @media (max-width: 860px) { .support-layout, .form-grid { grid-template-columns: 1fr; } .form-field.full { grid-column: auto; } }
+  </style>
 </head>
 <body>
   <div class="page">
     <header class="header">
-      <nav class="nav" aria-label="Main navigation">
+      <nav class="nav" aria-label="Navigation principale">
         <a class="brand" href="/"><span class="brand-mark">MD</span><span>Massot Development</span></a>
         <div class="nav-links">
           <a href="/apps.html">Apps</a>
-          <a aria-current="page" href="/support.html">Support</a>
-          <a href="/privacy.html">Privacy</a>
+          <a aria-current="page" href="/support.html">Assistance</a>
+          <a href="/privacy.html">Confidentialite</a>
           <a href="/legal.html">Legal</a>
         </div>
       </nav>
@@ -23,28 +41,127 @@
 
     <main class="shell legal">
       <div class="page-title">
-        <p class="kicker">Support</p>
-        <h1>Need help with a Massot Development app?</h1>
-        <p>Use this page as the support URL for App Store Connect and Garmin app listings.</p>
+        <p class="kicker">Assistance</p>
+        <h1>Besoin d'aide avec une application Massot Development ?</h1>
+        <p>Remplissez le formulaire ci-dessous : il prépare automatiquement un email complet avec les informations utiles pour comprendre le problème.</p>
       </div>
 
-      <h2>Contact</h2>
-      <p>Email: <a href="mailto:support@massotdev.com">support@massotdev.com</a></p>
-      <p>If this email is not active yet, use <a href="mailto:massotdynamics@gmail.com">massotdynamics@gmail.com</a> during the domain transition.</p>
+      <div class="support-layout">
+        <section class="support-card" aria-labelledby="contact-form-title">
+          <h2 id="contact-form-title">Formulaire de contact</h2>
+          <form class="support-form" id="support-form">
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="first-name">Prenom</label>
+                <input id="first-name" name="firstName" autocomplete="given-name" required>
+              </div>
+              <div class="form-field">
+                <label for="last-name">Nom</label>
+                <input id="last-name" name="lastName" autocomplete="family-name" required>
+              </div>
+              <div class="form-field full">
+                <label for="email">Adresse email</label>
+                <input id="email" name="email" type="email" autocomplete="email" required>
+              </div>
+              <div class="form-field">
+                <label for="app-name">Application concernee</label>
+                <select id="app-name" name="appName" required>
+                  <option value="">Choisir une application</option>
+                  <option>Padel Score</option>
+                  <option>Score</option>
+                  <option>Serenity</option>
+                  <option>Hyrox Partner</option>
+                  <option>Autre application Massot Development</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="device-brand">Marque de l'appareil</label>
+                <input id="device-brand" name="deviceBrand" placeholder="Garmin, Apple, Samsung..." required>
+              </div>
+              <div class="form-field full">
+                <label for="device-model">Modele de l'appareil</label>
+                <input id="device-model" name="deviceModel" placeholder="Apple Watch Series 9, Garmin Forerunner 965..." required>
+              </div>
+              <div class="form-field full">
+                <label for="issue">Explication du probleme</label>
+                <textarea id="issue" name="issue" placeholder="Decrivez ce qui se passe, quand le probleme apparait, et les etapes deja essayees." required></textarea>
+              </div>
+            </div>
+            <p class="form-note">Aucune information n'est enregistree sur le site. Le bouton ouvre simplement votre application mail avec un message deja redige.</p>
+            <button class="button primary" type="submit">Rediger l'email d'assistance</button>
+          </form>
 
-      <h2>Before contacting support</h2>
-      <ul class="list">
-        <li>Make sure your watch and phone are running the latest available system version.</li>
-        <li>Install the latest version of the app from the App Store or Garmin Connect IQ Store.</li>
-        <li>Restart the app if the score, session, or timer does not update as expected.</li>
-        <li>Include the app name, device model, and a short description of the issue in your message.</li>
-      </ul>
+          <div class="generated-mail" id="generated-mail" aria-live="polite">
+            <strong>Email prepare</strong>
+            <p class="form-note">Si votre application mail ne s'ouvre pas automatiquement, copiez le texte ci-dessous et envoyez-le a support@massotdev.com.</p>
+            <textarea id="generated-body" readonly></textarea>
+          </div>
+        </section>
 
-      <h2>App guides</h2>
-      <p>Each app has a short usage guide: <a href="/apps.html">view all app guides</a>.</p>
+        <aside class="support-card">
+          <h2>Contact direct</h2>
+          <p>Email : <a href="mailto:support@massotdev.com">support@massotdev.com</a></p>
+          <p>Si cette adresse n'est pas encore active, utilisez <a href="mailto:massotdynamics@gmail.com">massotdynamics@gmail.com</a> pendant la transition du domaine.</p>
+
+          <h2>Avant d'ecrire</h2>
+          <ul class="list">
+            <li>Verifiez que la montre et le telephone utilisent la derniere version disponible.</li>
+            <li>Installez la derniere version de l'application depuis l'App Store ou Garmin Connect IQ.</li>
+            <li>Redemarrez l'application si le score, la session ou le minuteur ne se met pas a jour.</li>
+            <li>Ajoutez le modele exact de l'appareil et le nom de l'application concernee.</li>
+          </ul>
+
+          <h2>Guides des apps</h2>
+          <p>Chaque application peut avoir son guide d'utilisation : <a href="/apps.html">voir les guides</a>.</p>
+        </aside>
+      </div>
     </main>
 
-    <footer class="footer"><div class="footer-inner"><span>© 2026 Massot Development</span><span><a href="/privacy.html">Privacy</a> · <a href="/apps.html">Apps</a></span></div></footer>
+    <footer class="footer"><div class="footer-inner"><span>© 2026 Massot Development</span><span><a href="/privacy.html">Confidentialite</a> · <a href="/apps.html">Apps</a></span></div></footer>
   </div>
+
+  <script>
+    const form = document.getElementById('support-form');
+    const generatedMail = document.getElementById('generated-mail');
+    const generatedBody = document.getElementById('generated-body');
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const firstName = data.get('firstName').trim();
+      const lastName = data.get('lastName').trim();
+      const email = data.get('email').trim();
+      const appName = data.get('appName').trim();
+      const deviceBrand = data.get('deviceBrand').trim();
+      const deviceModel = data.get('deviceModel').trim();
+      const issue = data.get('issue').trim();
+
+      const subject = `Demande d'assistance - ${appName} - ${deviceBrand} ${deviceModel}`;
+      const body = [
+        'Bonjour Massot Development,',
+        '',
+        "Je vous contacte au sujet d'un probleme rencontre avec une application.",
+        '',
+        `Prenom : ${firstName}`,
+        `Nom : ${lastName}`,
+        `Adresse email : ${email}`,
+        `Application concernee : ${appName}`,
+        `Marque de l'appareil : ${deviceBrand}`,
+        `Modele de l'appareil : ${deviceModel}`,
+        '',
+        'Explication du probleme :',
+        issue,
+        '',
+        'Merci par avance pour votre aide.',
+        `${firstName} ${lastName}`
+      ].join('\n');
+
+      generatedBody.value = body;
+      generatedMail.classList.add('is-visible');
+
+      const mailto = `mailto:support@massotdev.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailto;
+    });
+  </script>
 </body>
 </html>
