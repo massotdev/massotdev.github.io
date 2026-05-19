@@ -21,14 +21,20 @@
     .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,180,107,.18); }
     .choice-group { display: grid; gap: 9px; }
     .device-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    .device-choice { min-height: 52px; display: flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.06); color: var(--text); font-weight: 800; cursor: pointer; }
-    .device-choice input { width: 16px; height: 16px; accent-color: var(--gold); }
+    .device-choice { min-height: 56px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.06); color: var(--text); font-weight: 900; cursor: pointer; transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease; }
+    .device-choice input { position: absolute; opacity: 0; pointer-events: none; }
+    .device-choice:has(input:checked) { border-color: var(--gold); background: linear-gradient(145deg, var(--gold), var(--gold-soft)); color: #07100b; box-shadow: 0 14px 34px rgba(212,180,107,.2); }
+    .device-choice:hover { transform: translateY(-1px); border-color: rgba(212,180,107,.65); }
+    .device-choice.is-selected { border-color: var(--gold); background: linear-gradient(145deg, var(--gold), var(--gold-soft)); color: #07100b; box-shadow: 0 14px 34px rgba(212,180,107,.2); }
     .conditional-fields { display: none; grid-column: 1 / -1; gap: 16px; }
     .conditional-fields.is-visible { display: grid; }
     .form-note { color: var(--muted); font-size: 14px; }
-    .success-message { display: none; margin-bottom: 22px; border: 1px solid rgba(212,180,107,.42); border-radius: 8px; background: rgba(212,180,107,.12); padding: 16px; color: var(--text); }
-    .success-message.is-visible { display: block; }
+    .status-message { display: none; margin-bottom: 22px; border-radius: 8px; padding: 16px; color: var(--text); }
+    .status-message.is-visible { display: block; }
+    .status-message.success { border: 1px solid rgba(212,180,107,.42); background: rgba(212,180,107,.12); }
+    .status-message.error { border: 1px solid rgba(255,125,125,.42); background: rgba(255,125,125,.12); }
     .hidden-field { position: absolute; left: -9999px; opacity: 0; }
+    .button[disabled] { opacity: .62; cursor: wait; }
     @media (max-width: 860px) { .support-layout, .form-grid, .device-choices { grid-template-columns: 1fr; } .form-field.full, .conditional-fields { grid-column: auto; } }
   </style>
 </head>
@@ -53,17 +59,15 @@
         <p>Remplissez le formulaire ci-dessous. Votre demande sera envoyée automatiquement à l’adresse support@massotdev.com avec les informations nécessaires.</p>
       </div>
 
-      <div class="success-message" id="success-message">
-        Merci, votre message a bien été préparé pour l’envoi. Si c’est le premier message reçu via ce formulaire, une confirmation peut être demandée sur l’adresse support@massotdev.com.
-      </div>
+      <div class="status-message" id="form-status" role="status" aria-live="polite"></div>
 
       <div class="support-layout">
         <section class="support-card" aria-labelledby="contact-form-title">
           <h2 id="contact-form-title">Formulaire de contact</h2>
-          <form class="support-form" id="support-form" action="https://formsubmit.co/support@massotdev.com" method="POST">
+          <form class="support-form" id="support-form" action="https://formsubmit.co/ajax/support@massotdev.com" method="POST">
             <input type="hidden" name="_subject" id="email-subject" value="Nouvelle demande Massot Development">
             <input type="hidden" name="_template" value="table">
-            <input type="hidden" name="_next" value="https://massotdev.com/support.html?sent=1">
+            <input type="hidden" name="_captcha" value="false">
             <input type="text" name="_honey" class="hidden-field" tabindex="-1" autocomplete="off">
 
             <div class="form-grid">
@@ -105,8 +109,8 @@
                 <div class="choice-group full">
                   <span class="choice-label">Plateforme de l’appareil <span class="required">*</span></span>
                   <div class="device-choices">
-                    <label class="device-choice"><input type="radio" name="Plateforme de l’appareil" value="Apple" data-required-when-visible> Apple</label>
-                    <label class="device-choice"><input type="radio" name="Plateforme de l’appareil" value="Garmin" data-required-when-visible> Garmin</label>
+                    <label class="device-choice"><input type="radio" name="Plateforme de l’appareil" value="Apple" data-required-when-visible>Apple</label>
+                    <label class="device-choice"><input type="radio" name="Plateforme de l’appareil" value="Garmin" data-required-when-visible>Garmin</label>
                   </div>
                 </div>
                 <div class="form-field full">
@@ -135,8 +139,8 @@
                 <textarea id="message" name="Message" placeholder="Décrivez votre demande, votre question ou le problème rencontré." required></textarea>
               </div>
             </div>
-            <p class="form-note">Les champs marqués d’un astérisque sont obligatoires. Le formulaire utilise FormSubmit pour transmettre votre message à support@massotdev.com.</p>
-            <button class="button primary" type="submit">Envoyer</button>
+            <p class="form-note">Les champs marqués d’un astérisque sont obligatoires. Après envoi, une confirmation s’affiche directement sur cette page.</p>
+            <button class="button primary" id="submit-button" type="submit">Envoyer</button>
           </form>
         </section>
 
@@ -168,7 +172,9 @@
     const appFields = document.getElementById('app-fields');
     const quoteFields = document.getElementById('quote-fields');
     const subjectField = document.getElementById('email-subject');
-    const successMessage = document.getElementById('success-message');
+    const statusMessage = document.getElementById('form-status');
+    const submitButton = document.getElementById('submit-button');
+    const deviceChoices = document.querySelectorAll('.device-choice input');
 
     function setRequired(container, required) {
       container.querySelectorAll('[data-required-when-visible]').forEach((field) => {
@@ -178,6 +184,13 @@
           if (field.type === 'radio') field.checked = false;
           else field.value = '';
         }
+      });
+      updateDeviceChoices();
+    }
+
+    function updateDeviceChoices() {
+      deviceChoices.forEach((input) => {
+        input.closest('.device-choice').classList.toggle('is-selected', input.checked);
       });
     }
 
@@ -192,18 +205,48 @@
       setRequired(quoteFields, isQuoteRequest);
     }
 
-    reason.addEventListener('change', updateConditionalFields);
+    function showStatus(type, message) {
+      statusMessage.className = `status-message ${type} is-visible`;
+      statusMessage.textContent = message;
+      statusMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 
-    form.addEventListener('submit', () => {
+    reason.addEventListener('change', updateConditionalFields);
+    deviceChoices.forEach((input) => input.addEventListener('change', updateDeviceChoices));
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+
       const firstName = form.elements['Prénom'].value.trim();
       const lastName = form.elements['Nom'].value.trim();
       const reasonValue = reason.value || 'Demande Massot Development';
       subjectField.value = `${reasonValue} - ${firstName} ${lastName}`;
-    });
 
-    if (new URLSearchParams(window.location.search).get('sent') === '1') {
-      successMessage.classList.add('is-visible');
-    }
+      submitButton.disabled = true;
+      submitButton.textContent = 'Envoi en cours...';
+      statusMessage.className = 'status-message';
+      statusMessage.textContent = '';
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' }
+        });
+
+        if (!response.ok) throw new Error('Form submission failed');
+
+        form.reset();
+        updateConditionalFields();
+        showStatus('success', 'Votre message a bien été envoyé. Une réponse vous sera apportée en moins de 48 h.');
+      } catch (error) {
+        showStatus('error', 'L’envoi n’a pas pu aboutir pour le moment. Vous pouvez réessayer dans quelques instants ou écrire directement à support@massotdev.com.');
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Envoyer';
+      }
+    });
 
     updateConditionalFields();
   </script>
